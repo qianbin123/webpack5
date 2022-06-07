@@ -31,19 +31,18 @@
 
 /************************************ 情况二 ****************************************/
 module.exports = {
-  // 继承eslint规则
+  // 继承 Eslint 规则
   extends: ["eslint:recommended"],
   env: {
-    node: true, // 启用node中的全局变量
-    browser: true, // 启用浏览器中全局变量（比如：window、console能不能直接用）
+    node: true, // 启用node中全局变量
+    browser: true, // 启用浏览器中全局变量
   },
   parserOptions: {
-    ecmaVersion: 6,       // ES 语法版本
-    sourceType: "module",     // ES 模块化
-    // allowImportExportEverywhere: true, // 不限制eslint对import使用位置
+    ecmaVersion: 6, // es6
+    sourceType: "module", // es module
   },
   rules: {
-    "no-var": 2               // 不能使用var定义变量
+    "no-var": 2, // 不能使用 var 定义变量
   },
-  plugins: ["import"],         // 解决动态导入语法  npm install -D eslint-plugin-import
-}
+  plugins: ["import"], // 解决动态导入语法报错
+};

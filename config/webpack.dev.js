@@ -4,6 +4,9 @@ const path = require("path");
 const ESLintPlugin = require("eslint-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
+const os = require("os");
+const threads = os.cpus().length; // cpu核数
+
 module.exports = {
   mode: "development",
   devtool: "cheap-module-source-map",
@@ -12,7 +15,11 @@ module.exports = {
   output: {
     path: undefined,            // 开发模式没输出，可以undefined
     // 入口文件打包输出名
-    filename: "static/js/main.js",
+    filename: "static/js/[name].js",
+    // 给打包输出的其他文件命名
+    chunkFilename: "static/js/[name].chunk.js",
+    // 图片、字体等通过type:asset处理资源命名方式
+    assetModuleFilename: "static/media/[hash:10][ext][query]",
   },
   module: {
     rules: [
@@ -35,6 +42,22 @@ module.exports = {
             ],
           },
           {
+            test: /\.s[ac]ss$/,
+            use: [
+              "style-loader",
+              "css-loader",
+              "sass-loader", // 将sass编译成css文件
+            ],
+          },
+          {
+            test: /\.styl$/,
+            use: [
+              "style-loader",
+              "css-loader",
+              "stylus-loader", // 将stylus编译成css文件
+            ],
+          },
+          {
             test: /\.(png|jpe?g|gif|webp|svg)$/,
             type: "asset",       // 相当于 结合了webpack4中的url-loader和file-loader
             parser: {
@@ -43,10 +66,10 @@ module.exports = {
               }
             },
             // 这里的图片和下面的字体文件可以输出位置复用
-            generator: {
+            // generator: {
               // hash:6 hash取前6位 ext 为文件名扩展符 query 指携带的其他参数
-              filename: 'static/images/[hash:6][ext][query]'
-            }
+              // filename: 'static/images/[hash:6][ext][query]'
+            // }
           },
           {
             // 对字体文件处理以及处理其他资源（如：音视频）
@@ -58,10 +81,10 @@ module.exports = {
               }
             },
             // 这里的图片和下面的字体文件可以输出位置复用
-            generator: {
+            // generator: {
               // 输出位置
-              filename: 'static/media/[hash:6][ext][query]'
-            }
+              // filename: 'static/media/[hash:6][ext][query]'
+            // }
           },
           {
             test: /\.js$/,
@@ -88,6 +111,11 @@ module.exports = {
       context: path.resolve(__dirname, '../src'),
       exclude: "node_module",       // 排除node_module中的js文件
       cache: true,    // 开启缓存
+      cacheLocation: path.resolve(
+        __dirname,
+        "../node_modules/.cache/eslintcache"
+      ),
+      threads, // 开启多进程和设置进程数量
     }),
     // npm install -D html-webpack-plugin
     new HtmlWebpackPlugin({
@@ -96,6 +124,14 @@ module.exports = {
       template: path.resolve(__dirname, "../public/index.html")
     })
   ],
+  optimization: {
+    // 开发模式下不需要压缩
+    // 代码分割配置
+    splitChunks: {
+      chunks: "all",
+      // 其他都用默认值
+    },
+  },
   // 用webpack serve启动，
   // 注意：它不会输出dist资源（删除dist也没事），它是在内存中打包的
   devServer: {

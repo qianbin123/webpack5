@@ -17,14 +17,18 @@ const TerserWebpackPlugin = require("terser-webpack-plugin");
 // 有损压缩
 // npm install image-minimizer-webpack-plugin imagemin -D
 // npm install imagemin-gifsicle imagemin-jpegtran imagemin-optipng imagemin-svgo -D
-const ImageMinmizerPlugin = require("image-minimizer-webpack-plugin");
+const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
 const os = require("os");
 const threads = os.cpus().length;
 
 // Preload：告诉浏览器立即下载资源
 // Preffetch：有空时候加载
+// vue团队开发的
 const PreloadWebpackPlugin = require("@vue/preload-webpack-plugin")
+
+// PWA
+const WorkboxPlugin = require("workbox-webpack-plugin");
 
 
 // 抽取重复代码
@@ -198,35 +202,45 @@ module.exports = {
     new PreloadWebpackPlugin({
       // --- preload ---
       rel: "preload",       // 表示js采用preload形式加载
-      as: "script"          //  指作为一个script标签形式去做
+      as: "script"          // 指作为一个script标签形式去做
 
       // --- prefetch ---
       // rel: "prefetch"
-    })
-    // new ImageMinmizerPlugin({
-    //   implementation: ImageMinmizerPlugin.imageminGenerate,
-    //   options: {
-    //     plugins: [
-    //       ["gifsicle", {interlaced: true}],
-    //       ["jpegtran", {progressive: true}],
-    //       ["optipng", {optimizationLevel: 5}],
-    //       [
-    //         "svgo",
-    //         {
-    //           plugins: [
-    //             "preset-default",
-    //             "prefixIds",
-    //             {
-    //               name: "sortAttrs",
-    //               params: {
-    //                 xmlsOrder: "alphabetical"
-    //               }
-    //             }
-    //           ]
-    //         }
-    //       ]
-    //     ]
-    //   }
-    // })
+    }),
+    // PWA
+    new WorkboxPlugin.GenerateSW({
+      // 这些选项帮助快速启用ServiceWorkers
+      // 不允许遗漏任何“旧的”ServiceWorkers
+      clientsClaim: true,
+      skipWaiting: true
+    }),
+    // 压缩图片
+    new ImageMinimizerPlugin({
+      minimizer: {
+        implementation: ImageMinimizerPlugin.imageminGenerate,
+        options: {
+          plugins: [
+            ["gifsicle", { interlaced: true }],
+            ["jpegtran", { progressive: true }],
+            ["optipng", { optimizationLevel: 5 }],
+            [
+              "svgo",
+              {
+                plugins: [
+                  "preset-default",
+                  "prefixIds",
+                  {
+                    name: "sortAttrs",
+                    params: {
+                      xmlnsOrder: "alphabetical",
+                    },
+                  },
+                ],
+              },
+            ],
+          ],
+        },
+      },
+    }),
   ],
 }

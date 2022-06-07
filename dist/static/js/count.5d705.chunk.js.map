@@ -1,0 +1,1 @@
+{"version":3,"file":"static/js/count.5d705.chunk.js","mappings":"8GAIA,UAJA,SAAaA,EAAGC,GAAY,IAATC,EAAS,uDAAP,EAAGC,EAAI,uDAAF,EACxB,OAAOH,EAAIC,EAAIC,EAAIC","sources":["webpack://wanxiao/./src/js/count.js"],"sourcesContent":["function sum(a, b, c=0, d=0){\n  return a + b + c + d\n}\n\nexport default sum;"],"names":["a","b","c","d"],"sourceRoot":""}
